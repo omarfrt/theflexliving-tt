@@ -51,10 +51,20 @@ const Boards = () => {
         );
     };
 
-    const handleNewPropertyChange = (e) => {
-        setNewProperty({ ...newProperty, [e.target.name]: e.target.value });
-    };
-
+                    if (allowedTransitions[activeBoardTitle] === overBoardTitle) {
+                        // Remove the item from its original board
+                        newBoards[activeBoardIndex].items.splice(activeItemIndex, 1);
+    
+                        // Add the item to its new board
+                        newBoards[overBoardIndex].items.push(activeItem);
+    
+                        // Update the group field of the moved item
+                        const newGroup = {
+                            'Cleaning Required': 'Exited',
+                            'Cleaning Pending': 'Cleaning',
+                            'Cleaning Done': 'Full Property List',
+                        };
+    
     const handleAddProperty = (e) => {
         e.preventDefault();
         fetch('http://localhost:5000/properties', {
