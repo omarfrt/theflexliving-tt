@@ -19,7 +19,7 @@ export default function Item({ item }) {
     };
 
     return (
-        <ItemContainer ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <ItemContainer ref={setNodeRef}  {...attributes} {...listeners} style={style}>
             {item.propertyName}
         </ItemContainer>
     );
