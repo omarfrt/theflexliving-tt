@@ -12,7 +12,7 @@ import { DndContext,
 closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy,sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 
-//import { DragDropContext } from "react-beautiful-dnd"; deprecated ? 
+ 
 
 const Container = styled.div`
   display: flex;
@@ -20,20 +20,19 @@ const Container = styled.div`
 `;
 
 const Boards = () => {
-    const [properties, setProperties] = useState({});
-    const [ cleaningsRequired, setCleaningsRequired ] = useState([]);
-    const [ cleaningsPending, setCleaningsPending ] = useState([]);
-    const [ cleaningsDone, setCleaningsDone ] = useState([]);
+    const [properties, setProperties] = useState([]);
+    const [filteredProperties, setFilteredProperties] = useState([]);
     const [newProperty, setNewProperty] = useState({ propertyName: '', group: 'Full Property List' });
     const [activeId, setActiveId] = useState();
     useEffect(() => {
         fetch('http://localhost:5000/properties')
           .then((response) => response.json())
           .then((data) => {
-              setCleaningsRequired(data.filter(prop => prop.group === 'Exited'));
-              setCleaningsPending(data.filter(prop => prop.group === 'cleaning'));
-              setCleaningsDone(data.filter(prop => prop.group === 'Full Property List'));
-              setProperties({cleaningsRequired: cleaningsRequired, cleaningsPending: cleaningsPending, cleaningsDone: cleaningsDone});
+             let  setCleaningsRequired = {columnId:"cleanings Required", data:data.filter(prop => prop.group === 'Exited')}
+              let setCleaningsPending= {columnId:"cleanings Pending", data:data.filter(prop => prop.group === 'cleaning')}
+              let setCleaningsDone= {columnId:"cleanings Done", data:data.filter(prop => prop.group === 'Full Property List')}
+              setFilteredProperties([setCleaningsRequired,setCleaningsPending,setCleaningsDone,]);
+              setProperties(data)
           });
       }, []);
       const sensors = useSensors(
@@ -42,9 +41,60 @@ const Boards = () => {
           coordinateGetter: sortableKeyboardCoordinates
         })
       );
-    
-      const onDragEnd = (result) => {};
-      const onDragOver = (event) => {};
+      const onDragEnd = (event) => {}
+      // const handleOnDragEnd = (event) => {
+      //   const { active, over } = event;
+      //   if (active.id !== over.id) {
+      //     setFilteredProperties((items) => {
+      //       const oldIndex = items.findIndex((item) => item._id === active.id);
+      //       const newIndex = items.findIndex((item) => item._id === over.id);
+      //       console.log({oldIndex:oldIndex, newindex: newIndex, activeid :active.id, overid:over.id});
+      //       console.log({move: arrayMove(items, oldIndex, newIndex)});
+      //       return arrayMove(items, oldIndex, newIndex);
+      //     });
+      //   }
+      // };
+      const handleOnDragEnd = (event) => {
+        const { active, over } = event;
+        if (active.id !== over.id) {
+          setFilteredProperties((columns) => {
+            // Find the column that contains the item that was dragged
+            const oldColumnIndex = columns.findIndex((column) =>
+              column.data.some((item) => item._id === active.id)
+            );
+            const oldColumn = columns[oldColumnIndex];
+      
+            // Find the column that the item was dragged over
+            const newColumnIndex = columns.findIndex((column) =>
+              column.data.some((item) => item._id === over.id)
+            );
+            const newColumn = columns[newColumnIndex];
+      
+            // Find the old and new index in the data arrays
+            const oldIndex = oldColumn.data.findIndex((item) => item._id === active.id);
+            const newIndex = newColumn.data.findIndex((item) => item._id === over.id);
+      
+            // Create new data arrays with the items in the new order
+            const oldData = arrayMove(oldColumn.data, oldIndex, newIndex);
+            const newData = arrayMove(newColumn.data, oldIndex, newIndex);
+      
+            // Create new columns with the new data arrays
+            const newOldColumn = { ...oldColumn, data: oldData };
+            const newNewColumn = { ...newColumn, data: newData };
+      
+            // Create a new columns array with the new columns
+            const newColumns = [...columns];
+            newColumns[oldColumnIndex] = newOldColumn;
+            newColumns[newColumnIndex] = newNewColumn;
+      
+            return newColumns;
+          });
+        }
+      };
+  
+      const onDragOver = (event) => {
+        console.log(event);
+      };
       const onDragStart = (event) => {};
       const handleFilter = (event) => {
         const searchTerm = e.target.value.toLowerCase();
@@ -53,25 +103,10 @@ const Boards = () => {
     );
   };
   const handleNewPropertyChange = (e) => {
-    // const newProperty = {  [e.target.name]: e.target.value,group: 'Full Property List' };
-    // setProperties({ ...properties, ...newProperty});
   };
   const handleAddProperty = (e) => {
-    // e.preventDefault();
-    // fetch('http://localhost:5000/properties', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(newProperty),
-    // }).then(() => {
-    //   const newPropertiesList = [...properties, newProperty];
-    //   setProperties(newPropertiesList);
-    //   setFilteredProperties(newPropertiesList);
-    //   setNewProperty({ propertyName: '', group: 'Full Property List' });
-    // });
   };
-//   const cleaningsRequired = filteredProperties.filter(prop => prop.group === 'Exited');
-//   const cleaningsPending = filteredProperties.filter(prop => prop.group === 'cleaning');
-//   const cleaningsDone = filteredProperties.filter(prop => prop.group === 'Full Property List');
+const id= ["cleanings Required", "cleanings Pending", "cleanings Done"]
   return (
     <div>
       <input type="text" placeholder="Filter properties..." onChange={handleFilter} />
@@ -85,12 +120,14 @@ const Boards = () => {
         />
         <button type="submit">Add Property</button>
       </form>
-      <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragEnd={onDragEnd} onDragOver={onDragOver}>
+      <DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={onDragStart} onDragEnd={handleOnDragEnd} onDragOver={onDragOver}>
+        <SortableContext items={filteredProperties.map(p=>p.columnId)} strategy={verticalListSortingStrategy}>
         <Container>
-          <Board id="container1" title="Cleanings Required" items={cleaningsRequired} setItems={setCleaningsRequired} droppableId="cleaningsRequired" />
-          <Board id="container2" title="Cleanings Pending" items={cleaningsPending} setItems={setCleaningsPending} droppableId="cleaningsPending" />
-          <Board id="container3" title="Cleanings Done" items={cleaningsDone} setItems={setCleaningsDone} droppableId="cleaningsDone" />
+           {filteredProperties.map((property) => ( 
+            <Board id={property.columnId} title={property.columnId} items={property.data} onDragEnd={handleOnDragEnd} droppableId={property.data.group} />
+          ))}
         </Container>
+        </SortableContext>
       </DndContext>
     </div>
   );

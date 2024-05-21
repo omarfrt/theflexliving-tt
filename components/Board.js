@@ -22,24 +22,13 @@ export const ListContent = styled.div`
   flex-grow: 1;
   min-height: 100px;
 `;
-export default function Board({ title, items,setItems }) {
+export default function Board({ title, items,onDragEnd }) {
   
-    const onDragEnd = (event) => {
-        const { active, over } = event;
-        if(active.id === over.id) {
-            return
-        }
-        setItems((items) => {
-            const oldIndex = items.findIndex((item) => item._id === active.id);
-            const newIndex = items.findIndex((item) => item._id === over.id);
-           
-            return arrayMove(items, oldIndex, newIndex);
-        });
-    };
+   
     return (
         <ListContainer>
             <ListTitle>{title}</ListTitle>
-            <DndContext collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+           
 
                 <SortableContext items={items.map(item => item._id)} strategy={verticalListSortingStrategy}>
                     <ListContent>
@@ -48,7 +37,7 @@ export default function Board({ title, items,setItems }) {
                         ))}
                     </ListContent>
                 </SortableContext>
-            </DndContext>
+            
         </ListContainer>
     );
 }

@@ -8,7 +8,6 @@ const ItemContainer = styled.div`
   margin-bottom: 8px;
   background-color: white;
   display: flex;
-  user-select: none;
 `;
 
 export default function Item({ item }) {
@@ -21,7 +20,7 @@ export default function Item({ item }) {
 
     return (
         <ItemContainer ref={setNodeRef}  {...attributes} {...listeners} style={style}>
-            {item._id}
+            {item.propertyName}
         </ItemContainer>
     );
 }
