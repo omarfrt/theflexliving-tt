@@ -12,7 +12,11 @@
   "dependencies": {
     "next": "14.2.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "react-dom": "^18",
+    "react-modal": "^3.16.1",
+    "styled-components": "^6.1.11"
   },
   "devDependencies": {
     "json-server": "^1.0.0-beta.0"
