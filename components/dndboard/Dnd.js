@@ -133,6 +133,7 @@ export default function Dnd() {
 
   function handleDragOver(event) {
     const { active, over  } = event;
+    if(!over) return;
     const { id } = active;
     const { id: overId } = over;
     console.log(active, over);
