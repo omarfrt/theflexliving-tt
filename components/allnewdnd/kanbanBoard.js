@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import ColumnContainer from "./ColumnsContainer";
 import {
   DndContext,
@@ -47,41 +47,25 @@ const defaultCols = [
     title: "Cleaning Pending",
   },
   {
-    id: "Done",
-    title: "Full Property List",
+    id: "Full Property List",
+    title: "Cleaning Done",
   },
 ];
 
-const defaultTasks = [
-  {
-    id: "1",
-    group: "Exited",
-    address: "List admin APIs for dashboard",
-  },
-  {
-    id: "2",
-    group: "Done",
-    address: "List admin APIs for dashboard",
-  },{
-    id: "3",
-    group: "Done",
-    address: "List admin APIs for dashboard",
-  },{
-    id: "4",
-    group: "Exited",
-    address: "List admin APIs for dashboard",
-  },{
-    id: "5",
-    group: "Exited",
-    address: "List admin APIs for dashboard",
-  },
-];
+
 
 function KanbanBoard() {
   const [columns, setColumns] = useState(defaultCols);
   const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
 
-  const [tasks, setTasks] = useState(defaultTasks);
+  const [tasks, setTasks] = useState([]);
+  useEffect(() => {
+    fetch('http://localhost:5000/properties')
+    .then(response => response.json())
+    .then((data) => { 
+        setTasks(data)
+});
+}, []);
 
   const [activeColumn, setActiveColumn] = useState(null);
 
