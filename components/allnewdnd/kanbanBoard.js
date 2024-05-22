@@ -3,17 +3,16 @@ import { useMemo, useState, useEffect } from "react";
 import ColumnContainer from "./ColumnsContainer";
 import {
   DndContext,
-  DragEndEvent,
-  DragOverEvent,
   DragOverlay,
-  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
-import TaskCard from "./TaskCard";
+import TaskCard, { TaskContent } from "./TaskCard";
 import styled from "styled-components";
+import AddForm from "./AddForm";
+import PlusIcon from "../icons/PlusIcon";
 
 const BoardContainer = styled.div`
   margin: auto;
@@ -57,6 +56,26 @@ const SearchBar= styled.input`
     outline: none;
     margin-bottom: 20px;
 `;
+const Overlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+`;
+const NewPropertyButton = styled.button`
+    border: 0 solid;
+    padding: 1rem;
+    background: linear-gradient(to top, #18181b, #27272a);
+    border-radius: 1rem;
+    opacity: 1;
+    height: 56px;
+    width: 56px;
+    box-shadow: inset 0 1px 0 0 hsla(0,0%,100%,.1);
+    cursor: pointer;
+`;
 const defaultCols = [
   {
     id: "Exited",
@@ -87,11 +106,9 @@ function KanbanBoard() {
         setTasks(data)
 });
 }, []);
-
   const [activeColumn, setActiveColumn] = useState(null);
-
   const [activeTask, setActiveTask] = useState(null);
-
+  const [showForm, setShowForm] = useState(false);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -102,9 +119,19 @@ function KanbanBoard() {
   const handleSearch = (e) => {
      setSearch(e.target.value);
   };
-
+ 
   return (<Wrapper>
   <SearchBar type="text" placeholder="Search..." onChange={handleSearch} />
+  <TaskContent> Add New Property</TaskContent>
+  <NewPropertyButton onClick={() => setShowForm(!showForm)}>
+    <PlusIcon />
+    </NewPropertyButton>
+    {showForm && (
+      <>
+        <Overlay onClick={() => setShowForm(false)} />
+        <AddForm setItems={setTasks} closeForm={setShowForm}/>
+      </>
+    )}
     <BoardContainer>
     <DndContext
       sensors={sensors}
@@ -119,9 +146,6 @@ function KanbanBoard() {
               <ColumnContainer
                 key={col.id}
                 column={col}
-                createTask={createTask}
-                deleteTask={deleteTask}
-                updateTask={updateTask}
                 // tasks={tasks.filter((task) => task.group === col.id)}
                 //this way we can filter inside the full property obj in the state rather than the api
                 tasks={tasks.filter((task) => task.group === col.id && (!search || JSON.stringify(task).toLowerCase().includes(search.toLowerCase())))}
@@ -135,17 +159,12 @@ function KanbanBoard() {
         {activeColumn && (
           <ColumnContainer
             column={activeColumn}
-            createTask={createTask}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
             tasks={tasks.filter((task) => task.group === activeColumn.id)}
           />
         )}
         {activeTask && (
           <TaskCard
-            task={activeTask}
-            deleteTask={deleteTask}
-            updateTask={updateTask}
+            task={activeTask}         
           />
         )}
       </DragOverlay>
@@ -155,30 +174,6 @@ function KanbanBoard() {
         
   );
  
-  function createTask(group) {
-    const newTask= {
-      id: generateId(),
-      group: group,
-      address: `Task ${tasks.length + 1}`,
-    };
-
-    setTasks([...tasks, newTask]);
-  }
-
-  function deleteTask(id) {
-    const newTasks = tasks.filter((task) => task.id !== id);
-    setTasks(newTasks);
-  }
-
-  function updateTask(id, content) {
-    const newTasks = tasks.map((task) => {
-      if (task.id !== id) return task;
-      return { ...task, content };
-    });
-
-    setTasks(newTasks);
-  }
-
   function onDragStart(event) {
     if (event.active.data.current?.type === "Column") {
       setActiveColumn(event.active.data.current.column);
@@ -262,7 +257,7 @@ function KanbanBoard() {
   }
 }
 
-function generateId() {
+export function generateId() {
   /* Generate a random number between 0 and 10000 */
   return Math.floor(Math.random() * 10001);
 }
