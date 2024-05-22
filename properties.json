@@ -5566,11 +5566,6 @@
       "fixedCost": 50,
       "__v": 0,
       "id": "7caf"
-    },
-    {
-      "id": "3236",
-      "propertyName": "test",
-      "group": "Full Property List"
     }
   ]
 }
