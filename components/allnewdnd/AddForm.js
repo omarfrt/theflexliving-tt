@@ -69,13 +69,13 @@ const AddForm = ({setItems, closeForm}) => {
       contractStartDate: e.target.elements.contractStartDate.value,
       contractEndDate: e.target.elements.contractEndDate.value,
       directCost: { "April:2024": e.target.elements.directCost.value },
-      group: "Pending",
+      group: "Full Property List",
       city: e.target.elements.city.value,
       fixedCost: e.target.elements.fixedCost.value,
       __v:0,
       id: _id,
     };
-    setItems((items) => [...items, data]);
+    setItems((items) => [ data,...items]);
     e.target.reset();
     closeForm(false);
   };
