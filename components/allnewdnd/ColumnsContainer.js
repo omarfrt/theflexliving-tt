@@ -2,7 +2,6 @@
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useMemo, useState } from "react";
-import PlusIcon from "../icons/PlusIcon";
 import TaskCard from "./TaskCard";
 import styled from "styled-components";
 
@@ -53,26 +52,10 @@ const TaskList = styled.div`
   overflow-y: auto;
 `;
 
-const AddTaskButton = styled.button`
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  border: 2px solid #161C22; /* columnBackgroundColor */
-  border-radius: 0.375rem;
-  padding: 1rem;
-  background: none;
-  &:hover {
-    background-color: #0D1117; /* mainBackgroundColor */
-    color: #F87171;
-  }
-  &:active {
-    background-color: black;
-  }
-`;
+
 
 function ColumnContainer({
   column,
-  createTask,
   tasks,
   deleteTask,
   updateTask,
@@ -112,19 +95,6 @@ function ColumnContainer({
         <div style={{display: "flex", flexDirection:"row", gap:"50px", justifyContent:"center", alignItems:"center"}}>
           <TaskCounter>{tasks.length}</TaskCounter>
           {!editMode && column.title}
-          {/* Uncomment and adjust the code below if you need to enable column title editing */}
-          {/* {editMode && (
-            <input
-              value={column.title}
-              onChange={(e) => updateColumn(column.id, e.target.value)}
-              autoFocus
-              onBlur={() => setEditMode(false)}
-              onKeyDown={(e) => {
-                if (e.key !== 'Enter') return;
-                setEditMode(false);
-              }}
-            />
-          )} */}
         </div>
       </ColumnHeader>
 
@@ -136,10 +106,6 @@ function ColumnContainer({
         </SortableContext>
       </TaskList>
 
-      {/* <AddTaskButton onClick={() => createTask(column.id)}>
-        <PlusIcon />
-        Add task
-      </AddTaskButton> */}
     </ColumnContainerDiv>
   );
 }

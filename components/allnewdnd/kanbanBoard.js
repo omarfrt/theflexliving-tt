@@ -12,7 +12,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { SortableContext, arrayMove } from "@dnd-kit/sortable";
-import { createPortal } from "react-dom";
 import TaskCard from "./TaskCard";
 import styled from "styled-components";
 
@@ -24,7 +23,7 @@ const BoardContainer = styled.div`
   align-items: center;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 0 40px;
+  
 `;
 
 const ColumnsWrapper = styled.div`
@@ -36,6 +35,27 @@ const ColumnsWrapper = styled.div`
 const InnerWrapper = styled.div`
   display: flex;
   gap: 1rem;
+`;
+
+const Wrapper= styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+    justify-content: center;
+    padding-top: 50px;
+`;
+
+
+const SearchBar= styled.input`
+    width: 20%;
+    height: 50px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 20px;
 `;
 const defaultCols = [
   {
@@ -55,6 +75,7 @@ const defaultCols = [
 
 
 function KanbanBoard() {
+    const [search, setSearch] = useState('');
   const [columns, setColumns] = useState(defaultCols);
   const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
 
@@ -78,8 +99,12 @@ function KanbanBoard() {
       },
     })
   );
+  const handleSearch = (e) => {
+     setSearch(e.target.value);
+  };
 
-  return (
+  return (<Wrapper>
+  <SearchBar type="text" placeholder="Search..." onChange={handleSearch} />
     <BoardContainer>
     <DndContext
       sensors={sensors}
@@ -97,7 +122,9 @@ function KanbanBoard() {
                 createTask={createTask}
                 deleteTask={deleteTask}
                 updateTask={updateTask}
-                tasks={tasks.filter((task) => task.group === col.id)}
+                // tasks={tasks.filter((task) => task.group === col.id)}
+                //this way we can filter inside the full property obj in the state rather than the api
+                tasks={tasks.filter((task) => task.group === col.id && (!search || JSON.stringify(task).toLowerCase().includes(search.toLowerCase())))}
               />
             ))}
           </SortableContext>
@@ -124,8 +151,10 @@ function KanbanBoard() {
       </DragOverlay>
     </DndContext>
   </BoardContainer>
+  </Wrapper>
+        
   );
-
+ 
   function createTask(group) {
     const newTask= {
       id: generateId(),
@@ -149,32 +178,6 @@ function KanbanBoard() {
 
     setTasks(newTasks);
   }
-
-  // function createNewColumn() {
-  //   const columnToAdd: Column = {
-  //     id: generateId(),
-  //     title: `Column ${columns.length + 1}`,
-  //   };
-
-  //   setColumns([...columns, columnToAdd]);
-  // }
-
-  // function deleteColumn(id) {
-  //   const filteredColumns = columns.filter((col) => col.id !== id);
-  //   setColumns(filteredColumns);
-
-  //   const newTasks = tasks.filter((t) => t.columnId !== id);
-  //   setTasks(newTasks);
-  // }
-
-  // function updateColumn(id, title) {
-  //   const newColumns = columns.map((col) => {
-  //     if (col.id !== id) return col;
-  //     return { ...col, title };
-  //   });
-
-  //   setColumns(newColumns);
-  // }
 
   function onDragStart(event) {
     if (event.active.data.current?.type === "Column") {

@@ -100,32 +100,6 @@ function TaskCard({ task, deleteTask, updateTask }) {
       />
     );
   }
-//this is for editing the task, uncomment if you need it
-//   if (editMode) {
-//     return (
-//       <TaskCardContainer
-//         ref={setNodeRef}
-//         style={style}
-//         {...attributes}
-//         {...listeners}
-//         $isdragging={isDragging}
-//       >
-//         <TaskTextarea
-//           value={task.address}
-//           autoFocus
-//           placeholder="Task content here"
-//           onBlur={toggleEditMode}
-//           onKeyDown={(e) => {
-//             if (e.key === 'Enter' && e.shiftKey) {
-//               toggleEditMode();
-//             }
-//           }}
-//           onChange={(e) => updateTask(task.id, e.target.value)}
-//         />
-        
-//       </TaskCardContainer>
-//     );
-//   }
 
   return (
     <TaskCardContainer
@@ -142,7 +116,7 @@ function TaskCard({ task, deleteTask, updateTask }) {
       }}
       $isdragging={isDragging}
     >
-      <TaskContent>{task.address}</TaskContent>
+      <TaskContent>{task.propertyName}</TaskContent>
 
       {/* this is the delete button, uncomment if you need it */} 
       {/* {mouseIsOver && (
